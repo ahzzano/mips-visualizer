@@ -1,5 +1,6 @@
 <script>
-    import { Node, Svelvet, Minimap, Controls } from "svelvet";
+    import { Node, Svelvet, Edge, Anchor } from "svelvet";
+    import Label from "../components/Label.svelte";
 
     var basic_node = [
         {
@@ -13,6 +14,9 @@
             bgColor: "white",
         },
     ];
+    var edges = [{ source: 0, target: 1 }];
+
+    const connections = [1];
 </script>
 
 <h1>Welcome to SvelteKit</h1>
@@ -22,18 +26,60 @@
 
 <textarea> Enter MIPS Code Here </textarea>
 
-<Svelvet width={1500} height={500}>
-    <Node bgColor="white" id={0} connections={[1, 0]} label="main">
-        <div class="node-content">addi $t0, $t1, 1<br /> addi $t0, $t1, 1</div>
+<Svelvet
+    width={1500}
+    height={500}
+    edgeStyle="step"
+    TD={true}
+    edgesAboveNode
+    endStyles={[null, "arrow"]}
+>
+    <Node useDefaults id={"main"}>
+        <div class="node-content">
+            <div>main:</div>
+            <div>addi $t0, $t1, $2</div>
+            <div>addi $t0, $t1, $2</div>
+        </div>
+        <div class="out-anchors">
+            <Anchor id={"main-out"} connections={["falin"]}>
+                <Label />
+            </Anchor>
+        </div>
     </Node>
-    <Node bgColor="white" id={1} position={{ x: 0, y: 100 }}>
-        <div class="node-content">addi $t0, $t1, 1<br /> addi $t0, $t1, 1</div>
+
+    <Node useDefaults id={"falin"} position={{ x: 0, y: 250 }}>
+        <div class="in-anchors">
+            <Anchor id={"falin-in"}><Label /></Anchor>
+        </div>
+        <div class="node-content">
+            <div>falin:</div>
+            <div>addi $t0, $t1, $2</div>
+            <div>addi $t0, $t1, $2</div>
+            <div>addi $t0, $t1, $2</div>
+        </div>
     </Node>
 </Svelvet>
 
 <style>
     .node-content {
-        padding: 12px;
-        border-radius: 50%;
+        width: fit-content;
+        padding: 10px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-shadow: none;
+    }
+
+    .out-anchors {
+        position: absolute;
+        right: -24px;
+        top: 8px;
+        display: flex;
+    }
+
+    .in-anchors {
+        display: flex;
+        position: absolute;
+        right: -24px;
     }
 </style>
