@@ -1,22 +1,41 @@
-<script>
-    import { Node, Svelvet, Edge, Anchor } from "svelvet";
+<script lang="ts">
+    import { Node, Svelvet, Anchor } from "svelvet";
     import Label from "../components/Label.svelte";
 
-    var basic_node = [
-        {
-            id: 1,
-            position: { x: 50, y: 50 },
-            data: {
-                label: "addi $t0, $t1, 0\nsubu $t0, $t1, 3",
-            },
-            width: 175,
-            height: 40,
-            bgColor: "white",
-        },
-    ];
-    var edges = [{ source: 0, target: 1 }];
+    class Block {
+        label: string = "";
+        content: string[] = [];
+    }
+    let mips_code = "main: ";
 
-    const connections = [1];
+    // each code block has {label: string, content}
+    var code_blocks: Block[] = [];
+
+    function parseMipsCode() {
+        code_blocks = [];
+        console.log(mips_code);
+        let mipsLines: string[] = mips_code.split("\n");
+
+        let block = new Block();
+        for (const line in mipsLines) {
+            if (mipsLines[line].includes(":")) {
+                console.log(mipsLines);
+                code_blocks.push(block);
+                block = new Block();
+                let labelName = mipsLines[line].split(":");
+                block.label = labelName[0];
+                let others = labelName[1].trim();
+                if (others != "") {
+                    block.content.push(others);
+                }
+                continue;
+            }
+
+            block.content.push(mipsLines[line]);
+        }
+        code_blocks.push(block);
+        console.log(code_blocks);
+    }
 </script>
 
 <h1>Welcome to SvelteKit</h1>
@@ -24,7 +43,8 @@
     Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
 </p>
 
-<textarea> Enter MIPS Code Here </textarea>
+<textarea bind:value={mips_code} />
+<button on:click={parseMipsCode}>Visualize!</button>
 
 <Svelvet
     width={1500}
@@ -49,7 +69,7 @@
 
     <Node useDefaults id={"falin"} position={{ x: 0, y: 250 }}>
         <div class="in-anchors">
-            <Anchor id={"falin-in"}><Label /></Anchor>
+            <Anchor id={"falin-in"} direction={"north"}><Label /></Anchor>
         </div>
         <div class="node-content">
             <div>falin:</div>
@@ -79,7 +99,6 @@
 
     .in-anchors {
         display: flex;
-        position: absolute;
-        right: -24px;
+        justify-content: center;
     }
 </style>
